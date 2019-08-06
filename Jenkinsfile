@@ -1,22 +1,21 @@
 node {
    
    stage('Code Checkout') { 
-     git credentialsId: 'githubID', url: 'https://github.com/itrainbatman/maven-examples.git'
-     
+      git credentialsId: 'githubid', url: 'https://github.com/manjuorg/maven-examples.git'     
     }
    stage('Build') {
-    withMaven(jdk: 'JDK-1.8', maven: 'Maven-3.6.1') {
+    withMaven(jdk: 'jdk-8', maven: 'MAVEN') {
       sh 'mvn clean compile'
       }
     }
    stage('Unit Test run') {
-    withMaven(jdk: 'JDK-1.8', maven: 'Maven-3.6.1') {
+    withMaven(jdk: 'jdk-8', maven: 'MAVEN') {
      sh 'mvn test'
       } 
     }
    
    withSonarQubeEnv(credentialsId: 'sonarqubeid') {
-    withMaven(jdk: 'JDK-1.8', maven: 'Maven-3.6.1') {
+    withMaven(jdk: 'jdk-8', maven: 'MAVEN') {
     sh 'mvn sonar:sonar' 
       }
     }
@@ -29,7 +28,7 @@ node {
           }
     }
    stage('Package to Jfrog') {
-    withMaven(jdk: 'JDK-1.8', maven: 'Maven-3.6.1') {
+    withMaven(jdk: 'jdk-8', maven: 'MAVEN') {
      sh 'mvn package'
       }
     }
