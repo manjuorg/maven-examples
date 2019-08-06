@@ -13,10 +13,10 @@ node {
      sh 'mvn test'
       } 
     }
-   
-   withSonarQubeEnv(credentialsId: 'sonarid') {
+   stage('sonarqube'){
+   //withSonarQubeEnv(credentialsId: 'sonarid') {
     withMaven(jdk: 'jdk-8', maven: 'MAVEN') {
-    sh 'mvn sonar:sonar' 
+    sh 'mvn sonar:sonar -Dsonar.projectKey=maven-examp -Dsonar.organization=manjuorg -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=9d56ad4f78940bbe70bd9d8afad87704b59fb5ea' 
       }
     }
   stage("Quality Gate"){
