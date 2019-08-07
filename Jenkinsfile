@@ -19,14 +19,21 @@ node {
     sh 'mvn sonar:sonar -Dsonar.projectKey=maven-examp -Dsonar.organization=manjuorg -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=9d56ad4f78940bbe70bd9d8afad87704b59fb5ea' 
       }
     }
-  stage('Quality Gate'){
-          timeout(time: 1, unit: 'HOURS') {
-              def qg = waitForQualityGate()
-              if (qg.status != 'OK') {
-                  error "Pipeline aborted due to quality gate failure: ${qg.status}"
-              }
-          }
+  stage("Quality Gate"){
+        timeout(time: 1, unit: 'HOURS') { // Just in case something goes wrong, pipeline will be killed after a timeout
+            def qg = waitForQualityGate() // Reuse taskId previously collected by withSonarQubeEnv
+        if (qg.status != 'OK') {error "Pipeline aborted due to quality gate failure: ${qg.status}"
+
+          } else {
+
+                echo 'Quality Gate PASSED'
+
+            }
+
+        }
+
     }
+
    stage('Package to Jfrog') {
     withMaven(jdk: 'jdk-8', maven: 'MAVEN') {
      sh 'mvn package'
