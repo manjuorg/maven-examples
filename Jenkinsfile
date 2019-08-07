@@ -13,27 +13,28 @@ node {
      sh 'mvn test'
       } 
     }
-   stage('sonarqube'){
+   stage('sonarqube analysis'){
    //withSonarQubeEnv(credentialsId: 'sonarid') {
     withMaven(jdk: 'jdk-8', maven: 'MAVEN') {
     sh 'mvn sonar:sonar -Dsonar.projectKey=maven-examp -Dsonar.organization=manjuorg -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=9d56ad4f78940bbe70bd9d8afad87704b59fb5ea' 
       }
     }
-  stage("Quality Gate"){
-        timeout(time: 1, unit: 'HOURS') { // Just in case something goes wrong, pipeline will be killed after a timeout
-            def qg = waitForQualityGate() // Reuse taskId previously collected by withSonarQubeEnv
-        if (qg.status != 'OK') {error "Pipeline aborted due to quality gate failure: ${qg.status}"
-
-          } else {
-
-                echo 'Quality Gate PASSED'
-
-            }
-
-        }
-
-    }
-
+   
+   stage("quality gatestatus check"){
+      timeout(time: 1,unit: hours){
+           def qg=waitforqualitygate()
+         if (qg.status !="OK"){
+             slaclSend baseurl: 'https://hooks.slack.com/services/',
+             channel: '#jenkins-pipeline-demo',
+             color: 'danger',
+             message: 'welcome to jenkins, slack',
+             teamDomain: 'javahomecloud',
+              tokenCredentialsId: 'slack-demo'
+            error "pipeline aborted due to quality gate failure: ${qg.status}" 
+         }
+      }
+   }
+         
    stage('Package to Jfrog') {
     withMaven(jdk: 'jdk-8', maven: 'MAVEN') {
      sh 'mvn package'
